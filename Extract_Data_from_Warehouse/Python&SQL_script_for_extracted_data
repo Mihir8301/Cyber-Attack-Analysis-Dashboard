@@ -1,0 +1,41 @@
+# Make your the database is open and connected
+
+import pyodbc
+import pandas as pd
+
+# Database connection parameters
+server = r'DESKTOP-7DCC1TT\SQLEXPRESS01'
+database = 'CyberAttack_Base'
+trusted_connection = 'yes'
+
+# SQL queries to extract data from different tables
+query_csv = '''
+SELECT AttackDate, AttackYear, AttackMonth, Country, Spam, Ransomware, Local_Infection, Exploit, Malicious_Mail, Network_Attack, On_Demand_Scan, Web_Threat
+FROM dbo.Output_Cleaned_cyber_attack_dataset01;
+'''
+
+query_excel = '''
+SELECT event_date, event_year, affected_country, affected_organization, affected_industry, afftected_industry_code, event_type, event_subtype, motive, actor, actor_type, actor_country
+FROM dbo.Output_Cleaned_cyber_attack_dataset02;
+'''
+
+# Establishing the connection
+connection_string = f'DRIVER={{ODBC Driver 17 for SQL Server}};SERVER={server};DATABASE={database};Trusted_Connection={trusted_connection};'
+conn = pyodbc.connect(connection_string)
+
+# Extract data from the first table and export to CSV
+df_csv = pd.read_sql_query(query_csv, conn)
+csv_file = r'f:\University Material\ADT\Project\Data_Extracted_from_Warehouse\Extracted_data_cyber_attack_dataset01.csv'
+df_csv.to_csv(csv_file, index=False)
+
+# Extract data from the second table and export to Excel
+try:
+    df_excel = pd.read_sql_query(query_excel, conn)
+    excel_file = r'f:\University Material\ADT\Project\Data_Extracted_from_Warehouse\Extracted_data_cyber_attack_dataset02.xlsx'
+    df_excel.to_excel(excel_file, index=False, engine='openpyxl')
+    print(f'Data exported to {csv_file} and {excel_file}')
+except pd.io.sql.DatabaseError as e:
+    print(f'Error: {e}')
+
+# Closing the connection
+conn.close()
