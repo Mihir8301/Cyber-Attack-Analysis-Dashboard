@@ -3,6 +3,9 @@ import pandas as pd
 import plotly.express as px
 from plotly.subplots import make_subplots
 import plotly.graph_objects as go
+from langchain_community.llms import Ollama
+
+
 
 # Load the new dataset
 data = pd.read_excel('F:/University Material/ADT/Project/Extract_Data_from_Warehouse/Extracted_data_cyber_attack_dataset02.xlsx')
@@ -241,3 +244,22 @@ fig_treemap.update_layout(
 )
 
 st.plotly_chart(fig_treemap, use_container_width=True)
+
+
+
+# Initialize the chatbot model
+llm = Ollama(model="llama3")
+
+
+
+# Chatbot section
+st.title("🤖 CyberSentinel Chatbot")
+st.markdown("""
+Interact with the CyberSentinel Chatbot for insights and queries related to cybersecurity.
+""")
+prompt = st.text_area("Enter your question:")
+if st.button("Answer"):
+    if prompt:
+        with st.spinner("Generating your answer..."):
+            response = llm.invoke(prompt, stop=['<|eot_id|>'])
+            st.write(response)
